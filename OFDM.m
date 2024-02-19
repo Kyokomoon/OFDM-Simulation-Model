@@ -6,9 +6,18 @@ x = char(str);
 massage = encode(x);
 dis = sprintf("Битовая последовательность: \n");
 disp(dis);
-disp(massage);
-massage_str = decode(massage, bit);
-dis = sprintf("Декодированное сообщение: %s", massage_str);
+disp(num2str(massage));
+dis = sprintf("\nБитовая последовательность после шифрования: \n");
+disp(dis);
+conv_massage = conv_encode(massage);
+
+disp(num2str(conv_massage));
+dis = sprintf("\nБитовая последовательность после дешифрования: \n");
+disp(dis);
+conv_decode_massage = conv_decode(conv_massage, bit);
+disp(num2str(conv_decode_massage));
+massage_str = decode(conv_decode_massage, bit);
+dis = sprintf("\nДекодированное сообщение: %s", massage_str);
 disp(dis);
 function massage = encode(x)
     s_k = [1,1,0,1,0,1,1];
@@ -58,3 +67,21 @@ function massage_str = decode(x, bit)
             end
         end    
 end
+
+function encode_massage = conv_encode(x)
+    encode_massage = [];
+    polinom = zeros(1,7);
+    for i=1:(length(x))
+        polinom = circshift(polinom,1);
+        polinom(1)=x(i);
+        out_x = xor(xor(xor(xor(polinom(1), polinom(2)), polinom(3)), polinom(4)), polinom(7));
+        out_y = xor(xor(xor(xor(polinom(1), polinom(3)), polinom(4)), polinom(6)), polinom(7));
+        encode_massage = [encode_massage, out_x, out_y];
+    end
+end
+
+function decode_massage = conv_decode(x, bit)
+    trellis = poly2trellis(bit, [171 133]);
+    decode_massage = vitdec(x, trellis, bit, 'trunc', 'hard');
+end
+
