@@ -31,3 +31,22 @@
 Пример работы: 
 
 <img src = "scrin/3.jpg">
+
+## Lab3  Перемежение
+
+Задание: Реализовать операцию прямого и обратного перемежения закодированного битового сообщения
+
+<img src = "scrin/6.jpg">
+
+Вектор перемежения генерируется с помощью функции в Matlab:
+
+ran_index = randperm(length(conv_massage));
+
+<img src = "scrin/7.jpg">
+
+<img src = "scrin/8.jpg">
+
+
+Пример работы:
+
+<img src = "scrin/9.jpg">

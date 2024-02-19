@@ -12,9 +12,25 @@ disp(dis);
 conv_massage = conv_encode(massage);
 
 disp(num2str(conv_massage));
+
+ran_index = randperm(length(conv_massage));
+dis = sprintf("\nВектор перемежения: \n");
+disp(dis);
+disp(num2str(ran_index));
+
+interleave_massage = interleave(conv_massage, ran_index);
+dis = sprintf("\nБитовая последовательность после перемежения: \n");
+disp(dis);
+disp(num2str(interleave_massage));
+
+deinterleave_massage = deinterleave(interleave_massage, ran_index);
+dis = sprintf("\nБитовая последовательность после деперемежения: \n");
+disp(dis);
+disp(num2str(deinterleave_massage));
+
 dis = sprintf("\nБитовая последовательность после дешифрования: \n");
 disp(dis);
-conv_decode_massage = conv_decode(conv_massage, bit);
+conv_decode_massage = conv_decode(deinterleave_massage, bit);
 disp(num2str(conv_decode_massage));
 massage_str = decode(conv_decode_massage, bit);
 dis = sprintf("\nДекодированное сообщение: %s", massage_str);
@@ -84,4 +100,19 @@ function decode_massage = conv_decode(x, bit)
     trellis = poly2trellis(bit, [171 133]);
     decode_massage = vitdec(x, trellis, bit, 'trunc', 'hard');
 end
+
+function interleave_mass = interleave(x, ran_index)
+    interleave_mass = zeros(1, length(x));
+    for i = 1:length(x)
+        interleave_mass(i) = x(ran_index(i));
+    end
+
+end
+
+function deinterleave_mass = deinterleave(x, ran_index)
+    for i = 1:length(x)
+        deinterleave_mass(ran_index(i)) = x(i);
+    end
+end
+
 
