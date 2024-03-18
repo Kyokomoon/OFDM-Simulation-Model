@@ -50,3 +50,9 @@ ran_index = randperm(length(conv_massage));
 Пример работы:
 
 <img src = "scrin/9.jpg">
+
+## Рефакторинг 
+
+код переработан в лайф скрипт, каждая функция в отдельном файле
+
+<img src = "scrin/10.jpg">
