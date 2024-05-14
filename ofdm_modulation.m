@@ -1,19 +1,26 @@
-function ofdm = ofdm_modulation(qpsk_sequence)
-    pilot_interval = 4;
-    message = qpsk_sequence;
-    %Создание временного сигнала
-    ofdm = zeros(1, length(qpsk_sequence) * 4);
-    %Вставка сообщения в поднесущее
-    i = length(qpsk_sequence);
-        for j = 1:length(qpsk_sequence)
-            if mod(j, pilot_interval) == 1
-                ofdm(i) = 1; % Используем пилотное значение
-            else
-                ofdm(i) = message(j);
-            end
-            i = i + 1;
-        end
+function [ofdm, Nz, prefix, N_qpsk,OP_ind,INF_ind,OP_sig] = ofdm_modulation(qpsk_sequence, DRS, pref)
+    N_qpsk = length(qpsk_sequence);
+    N_rs = floor(N_qpsk / DRS);
+    OP_sig = [];
+    for i=1:N_rs
+        OP_sig(i) = 0.707 + 0.707i;
+    end
+
+    pilot = 0.707 + 0.707i;
     
-    % Обратное преобразование
-    ofdm = ifft(ofdm);
+    OP_ind = 1:DRS:N_qpsk+DRS-1;
+    for i = 1:DRS:N_qpsk+DRS-1
+         newSequenceIndex = min(i, N_qpsk); % Определяем массив данных
+         qpsk_sequence = [qpsk_sequence(1:newSequenceIndex) pilot qpsk_sequence(newSequenceIndex+1:end)];
+    end
+   
+    arr = 1:N_qpsk+ N_rs;
+    INF_ind = setdiff(arr, OP_ind);
+    C= 1/4;
+    Nz = round(C*(N_rs+N_qpsk));
+    zero_defend = [zeros(1, Nz), qpsk_sequence, zeros(1, Nz)];
+    ifft_ofdm = ifft(zero_defend);
+    prefix = pref * length(ifft_ofdm);
+    %переносим префикс
+    ofdm = [ifft_ofdm(length(ifft_ofdm)-prefix: length(ifft_ofdm)),      ifft_ofdm];
 end
