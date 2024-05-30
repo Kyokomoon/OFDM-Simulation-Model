@@ -1,26 +1,22 @@
-function [ofdm, Nz, prefix, N_qpsk,OP_ind,INF_ind,OP_sig] = ofdm_modulation(qpsk_sequence, DRS, pref)
+function [ofdm, Nz, prefix, N_qpsk,pilot, len_ofdm] = ofdm_modulation(qpsk_sequence, DRS, pref)
     N_qpsk = length(qpsk_sequence);
     N_rs = floor(N_qpsk / DRS);
-    OP_sig = [];
-    for i=1:N_rs
-        OP_sig(i) = 0.707 + 0.707i;
-    end
-
-    pilot = 0.707 + 0.707i;
+    pilot = complex(1,1) * 1;
+    len_ofdm_pilot = N_qpsk + N_rs;
+    q_pilot = qpsk_sequence;
     
-    OP_ind = 1:DRS:N_qpsk+DRS-1;
-    for i = 1:DRS:N_qpsk+DRS-1
-         newSequenceIndex = min(i, N_qpsk); % Определяем массив данных
-         qpsk_sequence = [qpsk_sequence(1:newSequenceIndex) pilot qpsk_sequence(newSequenceIndex+1:end)];
+    for i = 1:DRS:len_ofdm_pilot
+        q_pilot = [q_pilot(1:length(q_pilot) < i), pilot, q_pilot(1:length(q_pilot) >= i)];
     end
-   
-    arr = 1:N_qpsk+ N_rs;
-    INF_ind = setdiff(arr, OP_ind);
-    C= 1/4;
+    
+    C= 0.1;
+    ofdm_pilot = q_pilot;
     Nz = round(C*(N_rs+N_qpsk));
-    zero_defend = [zeros(1, Nz), qpsk_sequence, zeros(1, Nz)];
+    zero = zeros(1,Nz);
+    zero_defend = [zero ofdm_pilot zero];
+    len_ofdm = length(zero_defend);
     ifft_ofdm = ifft(zero_defend);
-    prefix = pref * length(ifft_ofdm);
+    prefix = round(pref * length(ifft_ofdm));
     %переносим префикс
-    ofdm = [ifft_ofdm(length(ifft_ofdm)-prefix: length(ifft_ofdm)),      ifft_ofdm];
+    ofdm = [ifft_ofdm(length(ifft_ofdm)-prefix: length(ifft_ofdm)) ifft_ofdm];
 end

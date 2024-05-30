@@ -1,25 +1,17 @@
-function signal = ofdm_demodulation(ofdm_ch, Nz, pref, OP_ind, INF_ind, Rtx)
-    cut_dem_ch = ofdm_ch(pref:length(ofdm_ch));
-    ofdm = fft(cut_dem_ch);
-    c = ofdm(Nz:(length(ofdm)-Nz));
-    Rrx = [];
-    for i=1:length(OP_ind)-1
-        Rrx(i) = c(OP_ind(i));
-    end
+function [signal, Heq, H, c] = ofdm_demodulation(ofdm_ch, Nz, DRS, pilot, pref, ofdm_len)
+    cut_dem_ch = ofdm_ch(pref+2:length(ofdm_ch));
+    ofdm = fft(cut_dem_ch,ofdm_len);
+    c = ofdm(Nz+1:(length(ofdm)-Nz));
+    array_index = 1:DRS:length(c);
+    Rtx = ones(1,length(array_index)) * pilot;
+    Rrx = transpose(reshape(c(1:DRS:end), [], 1));
     H = [];
     for i=1:length(Rrx)
         H(i) = Rrx(i)/Rtx(i);
     end
     ts = linspace(1, length(c), length(c));
-    OP=[];
-    for i=1:length(OP_ind)-1
-        OP(i) = OP_ind(i);
-    end
-    OP_ind = OP;
-    Heq = interp1(OP_ind, H, ts,'linear', 'extrap');
+    Heq = interp1(array_index, H, ts,'linear');
     Ceq = c ./ Heq;
-    signal = [];
-    for i=1:length(INF_ind)
-         signal(i) = Ceq(INF_ind(i));
-    end
+    Ceq(1:DRS:end) = [];
+    signal = Ceq;
 end

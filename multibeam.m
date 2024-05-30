@@ -6,9 +6,7 @@ function Srx = multibeam(Nb,L,B,F0,N0, Stx)
         x = randi([10 500]);
         D(i) = x;
     end
-    fprintf("\nмассив длин: ");
     D = sort(D);
-    disp(D);
     LightSpeed = 3 * 10^8; %m/s
 
     for i = 1:Nb
